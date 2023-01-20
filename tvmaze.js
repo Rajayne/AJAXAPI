@@ -14,7 +14,6 @@ const $searchForm = $("#searchForm");
  */
 
 async function getShowsByTerm(term) {
-  // ADD: Remove placeholder & make request to TVMaze search shows API.
   const res = await axios.get('https://api.tvmaze.com/search/shows', {
     params: {
       q: term,
@@ -56,10 +55,9 @@ function populateShows(shows) {
          </div>
        </div>
       `);
-
     $showsList.append($show);
-  }
-}
+  };
+};
 
 
 /** Handle search form submission: get shows from API and display.
@@ -85,17 +83,13 @@ $searchForm.on("submit", async function (evt) {
  */
 
 async function getEpisodesOfShow(id) {
-  const res = await axios.get('https://api.tvmaze.com/search/shows', {
-    params: {
-      q: id,
-    }
-  });
+  const res = await axios.get(`https://api.tvmaze.com/search/shows/${id}/episodes`);
 
-  return res.data.map(ep => ({
-    id: ep.id,
-    name: ep.name,
-    season: ep.season,
-    number: ep.number,
+  return res.data.map(episode => ({
+    id: episode.id,
+    name: episode.name,
+    season: episode.season,
+    number: episode.number,
   }));
 };
 
@@ -114,3 +108,12 @@ function populateEpisodes(episodes) {
   };
   $episodesArea.show();
 };
+
+
+async function getEpisodeAndDisplay(e) {
+  const showId = $(e.target).closest(".Show").data("show-id");
+  const episodes = await getEpisodesOfShow(showId);
+  populateEpisodes(episodes);
+};
+
+$showsList.on("click", ".Show-getEpisodes", getEpisodeAndDisplay);
